@@ -5,7 +5,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    lowrecase: true,
+    lowercase: true,
     trim: true,
     index: true,
   },
@@ -13,14 +13,14 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    lowrecase: true,
+    lowercase: true,
     trim: true,
   },
   fullname: {
     type: String,
     required: true,
     trim: true,
-    indxe: true,
+    index: true,
   },
   avatar: {
     type: String,
@@ -39,7 +39,8 @@ const userSchema = new Schema({
   },
   refreshToken:{
     type:String,
-  },
-  timestamps: true,
-  
-});
+  }
+}, { timestamps: true });
+
+const User = mongoose.model("user", userSchema);
+export default User;
