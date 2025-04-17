@@ -3,6 +3,8 @@ const asyncHandler = (fn) => (req, res, next) => {
 }
 
 
+
+export default asyncHandler;
 // const asyncHandler= (fn) => async (req,res,next)=>{
 //     try{
 //         await fn(req,res,next);
@@ -14,5 +16,3 @@ const asyncHandler = (fn) => (req, res, next) => {
 //         });
 //     }
 // }
-
-export default asyncHandler;
