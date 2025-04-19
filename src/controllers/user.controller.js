@@ -23,33 +23,34 @@ const registerUser = asyncHandler(async (req, res) => {
   const avatarLP = req.files?.avatar[0]?.path || null;
   const coverImageLP = req.files?.coverImage[0]?.path || null;
 
-  if(!avatarLP){
+  if (!avatarLP) {
     throw new ApiError(400, "Avatar is required");
   }
-  const avatar=await uploadCloudinary(avatarLP)
-  const coverImage=await uploadCloudinary(coverImageLP)
+  const avatar = await uploadCloudinary(avatarLP);
+  const coverImage = await uploadCloudinary(coverImageLP);
 
-  if(!avatar){
-   throw new ApiError(400, "Avatar is required");
+  if (!avatar) {
+    throw new ApiError(400, "Avatar is required");
   }
 
-   const userObj=await User.create({
-   fullName,
-   avatar:avatar.url,
-   coverImage:coverImage?.url || "",
-   email,
-   password,
-   username:username.toLowerCase(),
-
-  })
-  const createdUser=await User.findById(userObj._id).select("-password -refreshToken")
-  if(!createdUser){
-   throw new ApiError(500 ,"user registory error")
+  const userObj = await User.create({
+    fullName,
+    avatar: avatar.url,
+    coverImage: coverImage?.url || "",
+    email,
+    password,
+    username: username.toLowerCase(),
+  });
+  const createdUser = await User.findById(userObj._id).select(
+    "-password -refreshToken"
+  );
+  if (!createdUser) {
+    throw new ApiError(500, "user registory error");
   }
 
-  return res.status(201).json(
-   new ApiResponse(200,createdUser,"successfully registered")
-  )
+  return res
+    .status(201)
+    .json(new ApiResponse(200, createdUser, "successfully registered"));
 });
 
 export { registerUser };
