@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import User from "../models/user.model.js";
-import uploadCloudinary from "../utils/Cloudinary.js";
+import {uploadCloudinary} from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -12,22 +12,28 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Full name is required");
   }
 
-  const userExisted = User.findOne({
+  const userExisted =await User.findOne({
     $or: [{ email }, { username }],
   });
 
   if (userExisted) {
-    throw new ApiError(409, "User already existed");
+    throw new ApiError(400, "User already existed");
   }
-
-  const avatarLP = req.files?.avatar[0]?.path || null;
-  const coverImageLP = req.files?.coverImage[0]?.path || null;
-
-  if (!avatarLP) {
-    throw new ApiError(400, "Avatar is required");
+  // console.log("FILES RECEIVED: ", req.files);
+  // console.log("AVATAR PATH: ", req.files?.avatar?.[0]?.path);
+  
+  const avatarLocalPath = req.files?.avatar[0]?.path;
+  let coverImageLocalPath;
+  if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+      coverImageLocalPath = req.files.coverImage[0].path
   }
-  const avatar = await uploadCloudinary(avatarLP);
-  const coverImage = await uploadCloudinary(coverImageLP);
+  
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is missing in the request");
+  }
+ 
+  const avatar = await uploadCloudinary(avatarLocalPath);
+  const coverImage = await uploadCloudinary(coverImageLocalPath);
 
   if (!avatar) {
     throw new ApiError(400, "Avatar is required");
@@ -53,4 +59,24 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, createdUser, "successfully registered"));
 });
 
-export { registerUser };
+const loginUser=asyncHandler(async(req,res)=>{
+    const {username,email,password}=req.body
+    if (!username || !email){
+      throw new ApiError (400,"username or password is required")
+    }
+
+    const user=await User.findOne({
+      $or :[{username},{email}]
+    })
+
+    if(!user){
+      throw new ApiError(404 ,"user doesn't exist")
+    }
+    const isPasswordValid=await user.isPasswordCorrect(password)
+    if(!isPasswordValid){
+      throw new ApiError(401,"incorrect password")
+    }
+
+})
+
+export { registerUser,loginUser };
